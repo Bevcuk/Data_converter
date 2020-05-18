@@ -1,5 +1,3 @@
-import config
-
 from business_register.models.kved_models import Kved
 from business_register.models.ruo_models import Founders, Ruo, State
 from data_ocean.converter import Converter, BulkCreateManager

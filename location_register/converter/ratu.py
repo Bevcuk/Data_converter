@@ -1,6 +1,4 @@
-import config
 import re
-
 from data_ocean.converter import Converter, BulkCreateManager
 from location_register.models import Region, District, City, Citydistrict, Street
 
