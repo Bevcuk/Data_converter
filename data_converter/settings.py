@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from datetime import timedelta
+
 from data_converter import settings_local
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,17 +43,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
     'rest_auth',
     'django_extensions',
     'simple_history',
-    'business_register',
-    'location_register',
-    'users',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'rest_auth.registration',
+    'rest_framework_jwt',
+    'rest_framework.authtoken',
+    'rest_framework_swagger',
+
+    'business_register',
+    'location_register',
+    'users',
 
 ]
 
@@ -88,13 +93,6 @@ WSGI_APPLICATION = 'data_converter.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
 
 DATABASES = {
     'default': settings_local.DATABASE_CONFIG
@@ -140,9 +138,15 @@ STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination','PAGE_SIZE': 5,
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny', #IsAuthenticated
-    ]
+        'rest_framework.permissions.IsAuthenticated', #IsAuthenticated
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication'
+    )
 }
 
 AUTH_USER_MODEL = 'users.DataOceanUser'
@@ -150,3 +154,18 @@ AUTH_USER_MODEL = 'users.DataOceanUser'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SITE_ID = 1
+
+JWT_AUTH = {
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+        'users.views.jwt_response_payload_handler',
+    'JWT_EXPIRATION_DELTA': timedelta(seconds=30000),
+}
+
+REST_USE_JWT = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'users.serializers.RegisterSerializer',
+}
